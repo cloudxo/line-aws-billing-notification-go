@@ -1,0 +1,39 @@
+service: line-aws-billing-notification-go # NOTE: update this with your service name
+
+provider:
+  name: aws
+  runtime: go1.x
+
+ region: us-west-1
+
+ iamRoleStatements:
+  - Effect: "Allow"
+    Action:
+      - 'autoscaling:Describe*'
+      - 'cloudwatch:Describe*'
+      - 'cloudwatch:Get*'
+      - 'cloudwatch:List*'
+      - 'logs:Get*'
+      - 'logs:List*'
+      - 'logs:Describe*'
+      - 'logs:TestMetricFilter'
+      - 'logs:FilterLogEvents'
+      - 'sns:Get*'
+      - 'sns:List*'
+    Resource:
+      - '*'
+
+package:
+ exclude:
+   - ./**
+ include:
+   - ./bin/**
+
+functions:
+  billing_notify:
+    handler: bin/main
+    events:
+      - schedule: cron(0 23 * * ? *)
+    environment:
+        LINEpostURL: https://notify-api.line.me/api/notify
+        LINEnotifyToken: LINE_NOTIFY_TOKEN
